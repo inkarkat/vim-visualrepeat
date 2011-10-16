@@ -24,11 +24,13 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	002	17-Oct-2011	Increment b:changedtick without clobbering the
+"				expression register. 
 "	001	17-Mar-2011	file creation
 
 " Use this when you do NOT also invoke repeat#set(). 
 function! visualrepeat#set( sequence, ... )
-    silent exe "norm! \"=''\<CR>p"
+    call setline(1, getline(1)) " Increment b:changedtick
     let g:visualrepeat_sequence = a:sequence
     let g:visualrepeat_count = a:0 ? a:1 : v:count
     let g:visualrepeat_tick = b:changedtick
@@ -60,7 +62,7 @@ function! visualrepeat#repeat()
 	    " current selection. With this we also avoid the clumsy application
 	    " of the normal mode command to the visual selection, and can
 	    " support blockwise visual mode. 
-	    let l:cnt = l:repeat_count == -1 ? "" : (v:count ? v:count : (l:repeat_count ? l:repeat_count : ''))
+	    let l:cnt = l:repeat_count == -1 ? '' : (v:count ? v:count : (l:repeat_count ? l:repeat_count : ''))
 	    call feedkeys('gv' . l:cnt . l:repeat_sequence)
 	    return
 	endif
