@@ -1,4 +1,4 @@
-" visualrepeat.vim: summary
+" visualrepeat.vim: Repeat command extended to visual mode. 
 "
 "   Operator-pending mappings end with "g@" and repeat naturally; i.e. Vim
 "   re-applies the 'opfunc' on the equivalent text (but at the current cursor
@@ -40,6 +40,50 @@ function! visualrepeat#set_also( sequence, ... )
     let g:visualrepeat_sequence = a:sequence
     let g:visualrepeat_count = a:0 ? a:1 : v:count
     let g:visualrepeat_tick = b:changedtick
+endfunction
+
+
+function! visualrepeat#repeat()
+    if exists('g:visualrepeat_tick') && g:visualrepeat_tick == b:changedtick
+	let l:repeat_sequence = g:visualrepeat_sequence
+	let l:repeat_count = g:visualrepeat_count
+    elseif exists('g:repeat_tick') && g:repeat_tick == b:changedtick
+	let l:repeat_sequence = g:repeat_sequence
+	let l:repeat_count = g:repeat_count
+    endif
+
+    if exists('l:repeat_sequence')
+	" repeat.vim is enabled and responsible for handling the next repeat.  
+	if ! empty(maparg(substitute(l:repeat_sequence, '^.\{3}', '<Plug>', 'g'), 'v'))
+	    " The normal mode mapping to be repeated has a corresponding visual
+	    " mode mapping. Use this so that the repetition will affect the
+	    " current selection. With this we also avoid the clumsy application
+	    " of the normal mode command to the visual selection, and can
+	    " support blockwise visual mode. 
+	    let l:cnt = l:repeat_count == -1 ? "" : (v:count ? v:count : (l:repeat_count ? l:repeat_count : ''))
+	    call feedkeys('gv' . l:cnt . l:repeat_sequence)
+	    return
+	endif
+    endif
+
+    " Note: :normal has no bang to allow a remapped '.' command here to enable
+    " repeat.vim functionality. 
+
+    if visualmode() ==# 'v'
+	" Repeat the last change starting from the current cursor position. 
+	normal .
+    elseif visualmode() ==# 'V'
+	" For all selected lines, repeat the last change in the line; the cursor
+	" is set to the first column. 
+	'<,'>normal .
+    else
+	let v:errmsg = 'Cannot repeat in this visual mode!'
+	echohl ErrorMsg
+	echomsg v:errmsg
+	echohl None
+	sleep 500m
+	normal! gv
+    endif
 endfunction
 
 " vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
