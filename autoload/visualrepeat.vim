@@ -26,11 +26,20 @@
 " REVISION	DATE		REMARKS 
 "	002	17-Oct-2011	Increment b:changedtick without clobbering the
 "				expression register. 
+"				Must also adapt g:visualrepeat_tick on buffer
+"				save to allow repetition after a save and buffer
+"				switch (without relying on g:repeat_sequence
+"				being identical to g:visualrepeat_sequence,
+"				which has formerly often saved us). 
+"				Omit own increment of b:changedtick, let the
+"				mapping do that (or not, in case of a
+"				non-modifying mapping). It seems to work without
+"				it, and avoids setting the 'modified' flag on
+"				unmodified buffers, which is not expected. 
 "	001	17-Mar-2011	file creation
 
 " Use this when you do NOT also invoke repeat#set(). 
 function! visualrepeat#set( sequence, ... )
-    call setline(1, getline(1)) " Increment b:changedtick
     let g:visualrepeat_sequence = a:sequence
     let g:visualrepeat_count = a:0 ? a:1 : v:count
     let g:visualrepeat_tick = b:changedtick
@@ -87,5 +96,11 @@ function! visualrepeat#repeat()
 	normal! gv
     endif
 endfunction
+
+augroup visualrepeatPlugin
+    autocmd!
+    autocmd BufLeave,BufWritePre,BufReadPre * let g:visualrepeat_tick = (g:visualrepeat_tick == b:changedtick || g:visualrepeat_tick == 0) ? 0 : -1
+    autocmd BufEnter,BufWritePost * if g:visualrepeat_tick == 0|let g:visualrepeat_tick = b:changedtick|endif
+augroup END
 
 " vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
