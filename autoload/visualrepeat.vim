@@ -24,6 +24,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	003	21-Oct-2011	Also apply the same-register repeat enhancement
+"				to repeat.vim here. 
 "	002	17-Oct-2011	Increment b:changedtick without clobbering the
 "				expression register. 
 "				Must also adapt g:visualrepeat_tick on buffer
@@ -56,23 +58,42 @@ endfunction
 
 function! visualrepeat#repeat()
     if exists('g:visualrepeat_tick') && g:visualrepeat_tick == b:changedtick
+	" visualrepeat.vim should handle the repeat. 
 	let l:repeat_sequence = g:visualrepeat_sequence
 	let l:repeat_count = g:visualrepeat_count
     elseif exists('g:repeat_tick') && g:repeat_tick == b:changedtick
+	" repeat.vim is enabled and would handle a normal-mode repeat. 
 	let l:repeat_sequence = g:repeat_sequence
 	let l:repeat_count = g:repeat_count
     endif
 
     if exists('l:repeat_sequence')
-	" repeat.vim is enabled and responsible for handling the next repeat.  
+	" A mapping for visualrepeat.vim or repeat.vim to repeat has been set. 
+	" Ensure that a corresponding visual mode mapping exists; some plugins
+	" that only use repeat.vim may not have this. 
 	if ! empty(maparg(substitute(l:repeat_sequence, '^.\{3}', '<Plug>', 'g'), 'v'))
+	    " Handle mappings that use a register and want the same register
+	    " used on repetition. 
+	    let l:reg = ''
+	    if g:repeat_reg[0] ==# g:repeat_sequence && ! empty(g:repeat_reg[1])
+		if g:repeat_reg[1] ==# '='
+		    " This causes a re-evaluation of the expression on repeat, which
+		    " is what we want.
+		    let l:reg = '"=' . getreg('=', 1) . "\<CR>"
+		else
+		    let l:reg = '"' . g:repeat_reg[1]
+		endif
+	    endif
+
 	    " The normal mode mapping to be repeated has a corresponding visual
 	    " mode mapping. Use this so that the repetition will affect the
 	    " current selection. With this we also avoid the clumsy application
 	    " of the normal mode command to the visual selection, and can
 	    " support blockwise visual mode. 
 	    let l:cnt = l:repeat_count == -1 ? '' : (v:count ? v:count : (l:repeat_count ? l:repeat_count : ''))
-	    call feedkeys('gv' . l:cnt . l:repeat_sequence)
+
+	    call feedkeys('gv' . l:reg . l:cnt, 'n')
+	    call feedkeys(l:repeat_sequence)
 	    return
 	endif
     endif
