@@ -24,6 +24,11 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	004	22-Oct-2011	BUG: Must initialize g:visualrepeat_tick on load
+"				to avoid "Undefined variable" error in autocmds
+"				on BufWrite. It can happen that this autoload
+"				script is loaded without having a repetition
+"				registered at the same time. 
 "	003	21-Oct-2011	Also apply the same-register repeat enhancement
 "				to repeat.vim here. 
 "	002	17-Oct-2011	Increment b:changedtick without clobbering the
@@ -39,6 +44,8 @@
 "				it, and avoids setting the 'modified' flag on
 "				unmodified buffers, which is not expected. 
 "	001	17-Mar-2011	file creation
+
+let g:visualrepeat_tick = -1
 
 " Use this when you do NOT also invoke repeat#set(). 
 function! visualrepeat#set( sequence, ... )
@@ -57,7 +64,7 @@ endfunction
 
 
 function! visualrepeat#repeat()
-    if exists('g:visualrepeat_tick') && g:visualrepeat_tick == b:changedtick
+    if g:visualrepeat_tick == b:changedtick
 	" visualrepeat.vim should handle the repeat. 
 	let l:repeat_sequence = g:visualrepeat_sequence
 	let l:repeat_count = g:visualrepeat_count
