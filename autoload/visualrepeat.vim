@@ -9,9 +9,9 @@
 "   would be re-executed, and the repetition would then wait for the {motion},
 "   what is not wanted. 
 "   Therefore, this plugin offers a separate visualrepeat#set() function that
-"   can be invoked for operator-pending mappings (and visualrepeat#set_also for
+"   can be invoked for operator-pending mappings. It can also be invoked for
 "   normal-mode mappings that have already called repeat#set(), and may override
-"   that mapping with a special repeat mapping for visual mode repeats). 
+"   that mapping with a special repeat mapping for visual mode repeats. 
 "   Together with the remapped {Visual}. command, this allows repetition - similar
 "   to what the built-in Vim commands do - across normal, operator-pending and
 "   visual mode.  
@@ -24,6 +24,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	005	06-Dec-2011	Retire visualrepeat#set_also(); it's the same as
+"				visualrepeat#set() since we've dropped the
+"				forced increment of b:changedtick. 
 "	004	22-Oct-2011	BUG: Must initialize g:visualrepeat_tick on load
 "				to avoid "Undefined variable" error in autocmds
 "				on BufWrite. It can happen that this autoload
@@ -47,16 +50,7 @@
 
 let g:visualrepeat_tick = -1
 
-" Use this when you do NOT also invoke repeat#set(). 
 function! visualrepeat#set( sequence, ... )
-    let g:visualrepeat_sequence = a:sequence
-    let g:visualrepeat_count = a:0 ? a:1 : v:count
-    let g:visualrepeat_tick = b:changedtick
-endfunction
-
-" Use this when you do have already invoked repeat#set(). 
-" Always call repeat#set() first! 
-function! visualrepeat#set_also( sequence, ... )
     let g:visualrepeat_sequence = a:sequence
     let g:visualrepeat_count = a:0 ? a:1 : v:count
     let g:visualrepeat_tick = b:changedtick
