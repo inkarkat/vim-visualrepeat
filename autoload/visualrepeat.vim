@@ -24,6 +24,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	006	12-Dec-2011	Catch any errors from the :normal . repetitions
+"				instead of causing function errors. Also use
+"				exceptions for the internal error signaling. 
 "	005	06-Dec-2011	Retire visualrepeat#set_also(); it's the same as
 "				visualrepeat#set() since we've dropped the
 "				forced increment of b:changedtick. 
@@ -57,6 +60,18 @@ function! visualrepeat#set( sequence, ... )
 endfunction
 
 
+function! s:ErrorMsg( text )
+    let v:errmsg = a:text
+    echohl ErrorMsg
+    echomsg v:errmsg
+    echohl None
+
+    if &cmdheight == 1
+	" In visual mode, the mode message will override the error message. 
+	sleep 500m
+    endif
+    normal! gv
+endfunction
 function! visualrepeat#repeat()
     if g:visualrepeat_tick == b:changedtick
 	" visualrepeat.vim should handle the repeat. 
@@ -102,21 +117,24 @@ function! visualrepeat#repeat()
     " Note: :normal has no bang to allow a remapped '.' command here to enable
     " repeat.vim functionality. 
 
-    if visualmode() ==# 'v'
-	" Repeat the last change starting from the current cursor position. 
-	normal .
-    elseif visualmode() ==# 'V'
-	" For all selected lines, repeat the last change in the line; the cursor
-	" is set to the first column. 
-	'<,'>normal .
-    else
-	let v:errmsg = 'Cannot repeat in this visual mode!'
-	echohl ErrorMsg
-	echomsg v:errmsg
-	echohl None
-	sleep 500m
-	normal! gv
-    endif
+    try
+	if visualmode() ==# 'v'
+	    " Repeat the last change starting from the current cursor position. 
+	    normal .
+	elseif visualmode() ==# 'V'
+	    " For all selected lines, repeat the last change in the line; the cursor
+	    " is set to the first column. 
+	    '<,'>normal .
+	else
+	    throw 'visualrepeat: Cannot repeat in this visual mode!'
+	endif
+    catch /^Vim\%((\a\+)\)\=:E/
+	" v:exception contains what is normally in v:errmsg, but with extra
+	" exception source info prepended, which we cut away. 
+	call s:ErrorMsg(substitute(v:exception, '^Vim\%((\a\+)\)\=:', '', ''))
+    catch /^visualrepeat:/
+	call s:ErrorMsg(substitute(v:exception, '^visualrepeat:\s*', '', ''))
+    endtry
 endfunction
 
 augroup visualrepeatPlugin
