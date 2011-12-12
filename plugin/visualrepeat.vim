@@ -28,4 +28,4 @@ let g:loaded_visualrepeat = 1
 
 xnoremap <silent> . :<C-U>call visualrepeat#repeat()<CR>
 
-" vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
+" vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
