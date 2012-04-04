@@ -1,21 +1,5 @@
 " visualrepeat.vim: Repeat command extended to visual mode. 
 "
-"   Operator-pending mappings end with "g@" and repeat naturally; i.e. Vim
-"   re-applies the 'opfunc' on the equivalent text (but at the current cursor
-"   position). But without a call to repeat#set(), it is impossible to repeat
-"   this operator-pending mapping to the current visual selection. Plugins
-"   cannot call repeat#set() in their operator-pending mapping, because then
-"   Vim's built-in repeat would be circumvented, the full mapping ending with g@
-"   would be re-executed, and the repetition would then wait for the {motion},
-"   what is not wanted. 
-"   Therefore, this plugin offers a separate visualrepeat#set() function that
-"   can be invoked for operator-pending mappings. It can also be invoked for
-"   normal-mode mappings that have already called repeat#set(), and may override
-"   that mapping with a special repeat mapping for visual mode repeats. 
-"   Together with the remapped {Visual}. command, this allows repetition - similar
-"   to what the built-in Vim commands do - across normal, operator-pending and
-"   visual mode.  
-"
 " DEPENDENCIES:
 "
 " Copyright: (C) 2011 Ingo Karkat
@@ -24,7 +8,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
-"	006	12-Dec-2011	Catch any errors from the :normal . repetitions
+"   1.00.006	12-Dec-2011	Catch any errors from the :normal . repetitions
 "				instead of causing function errors. Also use
 "				exceptions for the internal error signaling. 
 "	005	06-Dec-2011	Retire visualrepeat#set_also(); it's the same as
