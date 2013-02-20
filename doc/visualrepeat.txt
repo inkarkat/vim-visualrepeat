@@ -78,17 +78,17 @@ USAGE							  *visualrepeat-usage*
 INSTALLATION					   *visualrepeat-installation*
 
 This script is packaged as a |vimball|. If you have the "gunzip" decompressor
-in your PATH, simply edit the *.vba.gz package in Vim; otherwise, decompress
+in your PATH, simply edit the *.vmb.gz package in Vim; otherwise, decompress
 the archive first, e.g. using WinZip. Inside Vim, install by sourcing the
 vimball or via the |:UseVimball| command. >
-    vim visualrepeat.vba.gz
+    vim visualrepeat*.vmb.gz
     :so %
 To uninstall, use the |:RmVimball| command.
 
 DEPENDENCIES					   *visualrepeat-dependencies*
 
 - Requires Vim 7.0 or higher.
-- repeat.vim (vimscript #2136) plugin (highly recommended).
+- repeat.vim (vimscript #2136) plugin (highly recommended)
 
 ==============================================================================
 INTEGRATION					    *visualrepeat-integration*
@@ -106,6 +106,10 @@ IDEAS							  *visualrepeat-ideas*
 
 ==============================================================================
 HISTORY							*visualrepeat-history*
+
+1.02	27-Dec-2012
+BUG: "E121: Undefined variable: g:repeat_sequence" when using visual repeat of
+a mapping using registers without having used repeat.vim beforehand.
 
 1.01	05-Apr-2012
 FIX: Avoid error about undefined g:repeat_reg when (a proper version of)
