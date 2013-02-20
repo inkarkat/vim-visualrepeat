@@ -8,6 +8,10 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.02.008	27-Dec-2012	BUG: "E121: Undefined variable:
+"				g:repeat_sequence" when using visual repeat
+"				of a mapping using registers without having used
+"				repeat.vim beforehand.
 "   1.01.007	05-Apr-2012	FIX: Avoid error about undefined g:repeat_reg
 "				when (a proper version of) repeat.vim isn't
 "				available.
@@ -78,7 +82,7 @@ function! visualrepeat#repeat()
 	    " Handle mappings that use a register and want the same register
 	    " used on repetition.
 	    let l:reg = ''
-	    if exists('g:repeat_reg') && g:repeat_reg[0] ==# g:repeat_sequence && ! empty(g:repeat_reg[1])
+	    if exists('g:repeat_reg') && g:repeat_reg[0] ==# l:repeat_sequence && ! empty(g:repeat_reg[1])
 		if g:repeat_reg[1] ==# '='
 		    " This causes a re-evaluation of the expression on repeat, which
 		    " is what we want.
