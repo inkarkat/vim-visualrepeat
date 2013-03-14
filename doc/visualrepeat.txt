@@ -107,6 +107,10 @@ IDEAS							  *visualrepeat-ideas*
 ==============================================================================
 HISTORY							*visualrepeat-history*
 
+1.03	21-Feb-2013
+REGRESSION: Fix in 1.02 does not repeat recorded register when the mappings in
+repeat.vim and visualrepeat.vim differ.
+
 1.02	27-Dec-2012
 BUG: "E121: Undefined variable: g:repeat_sequence" when using visual repeat of
 a mapping using registers without having used repeat.vim beforehand.
@@ -125,7 +129,7 @@ Split off into dedicated plugin.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2008-2012 Ingo Karkat
+Copyright: (C) 2008-2013 Ingo Karkat
 The VIM LICENSE applies to this script; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
