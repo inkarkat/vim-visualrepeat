@@ -130,7 +130,7 @@ Started development.
 
 ==============================================================================
 Copyright: (C) 2008-2013 Ingo Karkat
-The VIM LICENSE applies to this script; see |copyright|.
+The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
 ==============================================================================
