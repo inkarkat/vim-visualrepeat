@@ -2,12 +2,21 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2011-2012 Ingo Karkat
+" Copyright: (C) 2011-2013 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.03.009	21-Feb-2013	REGRESSION: Fix in 1.02 does not repeat recorded
+"				register when the mappings in repeat.vim and
+"				visualrepeat.vim differ. We actually need to
+"				always check g:repeat_sequence, since that is
+"				also installed in g:repeat_reg[0]. Caught by
+"				tests/ReplaceWithRegister/repeatLineAsVisual001.vim;
+"				if only I had executed the tests sooner :-(
+"				Fix by checking for the variable's existence
+"				instead of using l:repeat_sequence.
 "   1.02.008	27-Dec-2012	BUG: "E121: Undefined variable:
 "				g:repeat_sequence" when using visual repeat
 "				of a mapping using registers without having used
@@ -41,6 +50,8 @@
 "				it, and avoids setting the 'modified' flag on
 "				unmodified buffers, which is not expected.
 "	001	17-Mar-2011	file creation
+let s:save_cpo = &cpo
+set cpo&vim
 
 let g:visualrepeat_tick = -1
 
@@ -82,7 +93,8 @@ function! visualrepeat#repeat()
 	    " Handle mappings that use a register and want the same register
 	    " used on repetition.
 	    let l:reg = ''
-	    if exists('g:repeat_reg') && g:repeat_reg[0] ==# l:repeat_sequence && ! empty(g:repeat_reg[1])
+	    if exists('g:repeat_reg') && exists('g:repeat_sequence') &&
+	    \   g:repeat_reg[0] ==# g:repeat_sequence && ! empty(g:repeat_reg[1])
 		if g:repeat_reg[1] ==# '='
 		    " This causes a re-evaluation of the expression on repeat, which
 		    " is what we want.
@@ -134,4 +146,6 @@ augroup visualrepeatPlugin
     autocmd BufEnter,BufWritePost * if g:visualrepeat_tick == 0|let g:visualrepeat_tick = b:changedtick|endif
 augroup END
 
+let &cpo = s:save_cpo
+unlet s:save_cpo
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
