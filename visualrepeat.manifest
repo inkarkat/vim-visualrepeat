@@ -1,0 +1,3 @@
+autoload/visualrepeat.vim
+plugin/visualrepeat.vim
+doc/visualrepeat.txt
