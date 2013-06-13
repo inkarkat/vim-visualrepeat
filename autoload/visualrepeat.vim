@@ -8,6 +8,10 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.10.010	18-Apr-2013	Check for existence of actual visual mode
+"				mapping; do not accept a select mode mapping,
+"				because we're applying it to a visual selection.
+"				Pass through a [count] to the :normal . command.
 "   1.03.009	21-Feb-2013	REGRESSION: Fix in 1.02 does not repeat recorded
 "				register when the mappings in repeat.vim and
 "				visualrepeat.vim differ. We actually need to
@@ -89,7 +93,7 @@ function! visualrepeat#repeat()
 	" A mapping for visualrepeat.vim or repeat.vim to repeat has been set.
 	" Ensure that a corresponding visual mode mapping exists; some plugins
 	" that only use repeat.vim may not have this.
-	if ! empty(maparg(substitute(l:repeat_sequence, '^.\{3}', '<Plug>', 'g'), 'v'))
+	if ! empty(maparg(substitute(l:repeat_sequence, '^.\{3}', '<Plug>', 'g'), 'x'))
 	    " Handle mappings that use a register and want the same register
 	    " used on repetition.
 	    let l:reg = ''
@@ -117,17 +121,17 @@ function! visualrepeat#repeat()
 	endif
     endif
 
-    " Note: :normal has no bang to allow a remapped '.' command here to enable
-    " repeat.vim functionality.
-
     try
+	" Note: :normal has no bang to allow a remapped '.' command here to
+	" enable repeat.vim functionality.
+
 	if visualmode() ==# 'v'
 	    " Repeat the last change starting from the current cursor position.
-	    normal .
+	    execute 'normal' (v:count ? v:count : '') . '.'
 	elseif visualmode() ==# 'V'
 	    " For all selected lines, repeat the last change in the line; the cursor
 	    " is set to the first column.
-	    '<,'>normal .
+	    execute "'<,'>normal" (v:count ? v:count : '') . '.'
 	else
 	    throw 'visualrepeat: Cannot repeat in this visual mode!'
 	endif
