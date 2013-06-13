@@ -95,6 +95,33 @@ INTEGRATION					    *visualrepeat-integration*
 
 This plugin is meant to be used together with repeat.vim.
 
+This plugin has helper functions that plugins with cross-repeat functionality
+can use in their normal mode repeat mappings of repeated visual mode mappings.
+With this, you save work and allow for a consistent user experience.
+Define your normal mode repeat mapping like this: >
+    nnoremap <silent> <Plug>(MyPluginVisual)
+    \ :<C-u>execute 'normal!' visualrepeat#reapply#VisualMode(0)<Bar>
+    \call MyPlugin#Operator('visual', "\<lt>Plug>(MyPluginVisual)")<CR>
+If your plugin uses a passed [count] (i.e. the count is not only used to
+determine the text area the mapping is applied to), you need to define a
+mapping: >
+    vnoremap <silent> <expr> <SID>(ReapplyRepeatCount) visualrepeat#reapply#RepeatCount()
+and apply the function followed by the mapping like this: >
+    nnoremap <silent> <script> <Plug>(MyPluginVisual)
+    \ :<C-u>execute 'normal!' visualrepeat#reapply#VisualMode(1)<CR>
+    \<SID>(ReapplyRepeatCount)
+    \:<C-u>call MyPlugin#Operator('visual', v:count, "\<lt>Plug>(MyPluginVisual)")<CR>
+If you want to support running without visualrepeat.vim, too, provide a
+wrapper that defaults to |1v|: >
+    function! s:VisualMode()
+	let l:keys = "1v\<Esc>"
+	silent! let l:keys = visualrepeat#reapply#VisualMode(0)
+	return l:keys
+    endfunction
+    nnoremap <silent> <Plug>(MyPluginVisual)
+    \ :<C-u>execute 'normal!' <SID>VisualMode()<Bar>
+    \call MyPlugin#Operator('visual', "\<lt>Plug>(MyPluginVisual)")<CR>
+<
 ==============================================================================
 LIMITATIONS					    *visualrepeat-limitations*
 
@@ -106,6 +133,14 @@ IDEAS							  *visualrepeat-ideas*
 
 ==============================================================================
 HISTORY							*visualrepeat-history*
+
+1.10	RELEASEME
+- Check for existence of actual visual mode mapping; do not accept a select
+  mode mapping, because we're applying it to a visual selection.
+- Pass through a [count] to the :normal . command.
+- Add visualrepeat#reapply#VisualMode() and visualrepeat#reapply#RepeatCount()
+  helper functions that plugins can use in their normal mode repeat mappings
+  of repeated visual mode mappings.
 
 1.03	21-Feb-2013
 REGRESSION: Fix in 1.02 does not repeat recorded register when the mappings in
