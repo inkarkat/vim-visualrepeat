@@ -8,6 +8,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.10.011	14-Jun-2013	Minor: Make substitute() robust against
+"				'ignorecase'.
 "   1.10.010	18-Apr-2013	Check for existence of actual visual mode
 "				mapping; do not accept a select mode mapping,
 "				because we're applying it to a visual selection.
@@ -138,9 +140,9 @@ function! visualrepeat#repeat()
     catch /^Vim\%((\a\+)\)\=:E/
 	" v:exception contains what is normally in v:errmsg, but with extra
 	" exception source info prepended, which we cut away.
-	call s:ErrorMsg(substitute(v:exception, '^Vim\%((\a\+)\)\=:', '', ''))
+	call s:ErrorMsg(substitute(v:exception, '^\CVim\%((\a\+)\)\=:', '', ''))
     catch /^visualrepeat:/
-	call s:ErrorMsg(substitute(v:exception, '^visualrepeat:\s*', '', ''))
+	call s:ErrorMsg(substitute(v:exception, '^\Cvisualrepeat:\s*', '', ''))
     endtry
 endfunction
 
