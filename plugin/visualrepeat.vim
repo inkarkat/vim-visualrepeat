@@ -9,6 +9,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"   1.00.002	13-Dec-2011	Prepared for publish. 
 "	001	18-Mar-2011	file creation from ingomappings.vim. 
 
 " Avoid installing twice or when in unsupported Vim version. 
