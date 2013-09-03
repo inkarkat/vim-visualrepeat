@@ -8,6 +8,11 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.10.012	04-Sep-2013	ENH: Use the current cursor virtual column when
+"				repeating in linewise visual mode. Add
+"				visualrepeat#CaptureVirtCol() and
+"				visualrepeat#repeatOnVirtCol() for that.
+"				Minor: Also catch Vim echoerr exceptions.
 "   1.10.011	14-Jun-2013	Minor: Make substitute() robust against
 "				'ignorecase'.
 "   1.10.010	18-Apr-2013	Check for existence of actual visual mode
@@ -80,6 +85,17 @@ function! s:ErrorMsg( text )
     endif
     normal! gv
 endfunction
+let s:virtcol = 1
+function! visualrepeat#CaptureVirtCol()
+    let s:virtcol = virtcol('.')
+    return ''
+endfunction
+function! visualrepeat#repeatOnVirtCol( virtcol, count )
+    execute 'normal!' a:virtcol . '|'
+    if virtcol('.') >= a:virtcol
+	execute 'normal' a:count . '.'
+    endif
+endfunction
 function! visualrepeat#repeat()
     if g:visualrepeat_tick == b:changedtick
 	" visualrepeat.vim should handle the repeat.
@@ -131,13 +147,22 @@ function! visualrepeat#repeat()
 	    " Repeat the last change starting from the current cursor position.
 	    execute 'normal' (v:count ? v:count : '') . '.'
 	elseif visualmode() ==# 'V'
-	    " For all selected lines, repeat the last change in the line; the cursor
-	    " is set to the first column.
-	    execute "'<,'>normal" (v:count ? v:count : '') . '.'
+	    " For all selected lines, repeat the last change in the line.
+	    if s:virtcol == 1
+		" The cursor is set to the first column.
+		execute "'<,'>normal" (v:count ? v:count : '') . '.'
+	    else
+		" The cursor is set to the cursor column; the last change is
+		" only applied to lines that have at least that many characters.
+		execute printf("'<,'>call visualrepeat#repeatOnVirtCol(%d, %s)",
+		\   s:virtcol,
+		\   string(v:count ? v:count : '')
+		\)
+	    endif
 	else
 	    throw 'visualrepeat: Cannot repeat in this visual mode!'
 	endif
-    catch /^Vim\%((\a\+)\)\=:E/
+    catch /^Vim\%((\a\+)\)\=:/
 	" v:exception contains what is normally in v:errmsg, but with extra
 	" exception source info prepended, which we cut away.
 	call s:ErrorMsg(substitute(v:exception, '^\CVim\%((\a\+)\)\=:', '', ''))
