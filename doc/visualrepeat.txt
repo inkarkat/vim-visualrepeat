@@ -141,6 +141,7 @@ HISTORY							*visualrepeat-history*
 - Add visualrepeat#reapply#VisualMode() and visualrepeat#reapply#RepeatCount()
   helper functions that plugins can use in their normal mode repeat mappings
   of repeated visual mode mappings.
+- Minor: Make substitute() robust against 'ignorecase'.
 
 1.03	21-Feb-2013
 REGRESSION: Fix in 1.02 does not repeat recorded register when the mappings in
