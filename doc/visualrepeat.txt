@@ -65,7 +65,8 @@ USAGE							  *visualrepeat-usage*
 									 *v_.*
 {Visual}.		Repeat last change in all visually selected lines.
 			- characterwise: Start from cursor position.
-			- linewise: Each line separately, starting from first column.
+			- linewise: Each line separately, starting from the
+			  current column (usually the first in this mode).
 			- blockwise: Not supported.
 
 			Note: If the last normal mode command included a
@@ -142,6 +143,10 @@ HISTORY							*visualrepeat-history*
   helper functions that plugins can use in their normal mode repeat mappings
   of repeated visual mode mappings.
 - Minor: Make substitute() robust against 'ignorecase'.
+- ENH: Use the current cursor virtual column when repeating in linewise visual
+  mode. Inspired by
+  http://stackoverflow.com/questions/18610564/vim-is-possible-to-use-dot-command-in-visual-block-mode
+- Abort further commands on error by using echoerr inside the mapping.
 
 1.03	21-Feb-2013
 REGRESSION: Fix in 1.02 does not repeat recorded register when the mappings in
