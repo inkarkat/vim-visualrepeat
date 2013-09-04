@@ -12,7 +12,13 @@
 "				repeating in linewise visual mode. Add
 "				visualrepeat#CaptureVirtCol() and
 "				visualrepeat#repeatOnVirtCol() for that.
-"				Minor: Also catch Vim echoerr exceptions.
+"				Minor: Also catch Vim echoerr exceptions and
+"				anything else.
+"				Move the error handling to the mapping itself
+"				and do it with echoerr so that further commands
+"				are properly aborted. Implement
+"				visualrepeat#ErrorMsg() to avoid a dependency to
+"				ingo#err#Get().
 "   1.10.011	14-Jun-2013	Minor: Make substitute() robust against
 "				'ignorecase'.
 "   1.10.010	18-Apr-2013	Check for existence of actual visual mode
@@ -73,18 +79,6 @@ function! visualrepeat#set( sequence, ... )
 endfunction
 
 
-function! s:ErrorMsg( text )
-    let v:errmsg = a:text
-    echohl ErrorMsg
-    echomsg v:errmsg
-    echohl None
-
-    if &cmdheight == 1
-	" In visual mode, the mode message will override the error message.
-	sleep 500m
-    endif
-    normal! gv
-endfunction
 let s:virtcol = 1
 function! visualrepeat#CaptureVirtCol()
     let s:virtcol = virtcol('.')
@@ -162,13 +156,22 @@ function! visualrepeat#repeat()
 	else
 	    throw 'visualrepeat: Cannot repeat in this visual mode!'
 	endif
+	return 1
     catch /^Vim\%((\a\+)\)\=:/
 	" v:exception contains what is normally in v:errmsg, but with extra
 	" exception source info prepended, which we cut away.
-	call s:ErrorMsg(substitute(v:exception, '^\CVim\%((\a\+)\)\=:', '', ''))
+	let s:errorMsg = substitute(v:exception, '^\CVim\%((\a\+)\)\=:', '', '')
     catch /^visualrepeat:/
-	call s:ErrorMsg(substitute(v:exception, '^\Cvisualrepeat:\s*', '', ''))
+	let s:errorMsg = substitute(v:exception, '^\Cvisualrepeat:\s*', '', '')
+    catch
+	let s:errorMsg = v:exception
     endtry
+
+    return 0
+endfunction
+
+function! visualrepeat#ErrorMsg()
+    return s:errorMsg
 endfunction
 
 augroup visualrepeatPlugin
