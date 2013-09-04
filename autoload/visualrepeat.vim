@@ -154,20 +154,43 @@ function! visualrepeat#repeat()
 		\)
 	    endif
 	else
-	    throw 'visualrepeat: Cannot repeat in this visual mode!'
+	    " Yank the selected block and repeat the last change in a scratch
+	    " buffer, so that the change is limited to the selection. The
+	    " vis.vim plugin does the same, but we cannot use it, because it
+	    " performs the movement (to the bottom of the current buffer) via
+	    " regular paste commands (which clobber the repeat command). We need
+	    " to be careful to avoid doing that, using only lower level
+	    " functions.
+	    let [l:count, l:startColPattern, l:firstLnum, l:lastLnum] = [v:count, ('\%>' . (virtcol("'<") - 1) . 'v'), line("'<"), line("'>")]
+	    let l:selection = split(ingo#selection#Get(), '\n', 1)
+	    let l:result = split(ingo#buffer#temp#Call(function('visualrepeat#TempRepeat'), [l:count, l:selection]), '\n', 1)
+
+	    for l:lnum in range(l:firstLnum, l:lastLnum)
+		let l:idx = l:lnum - l:firstLnum
+		let l:line = getline(l:lnum)
+		let l:startCol = match(l:line, l:startColPattern)
+		let l:endCol = l:startCol + len(l:selection[l:idx])
+		let l:newLine = strpart(l:line, 0, l:startCol) . get(l:result, l:idx, '') . strpart(l:line, l:endCol)
+		call setline(l:lnum, l:newLine)
+	    endfor
 	endif
 	return 1
     catch /^Vim\%((\a\+)\)\=:/
 	" v:exception contains what is normally in v:errmsg, but with extra
 	" exception source info prepended, which we cut away.
 	let s:errorMsg = substitute(v:exception, '^\CVim\%((\a\+)\)\=:', '', '')
-    catch /^visualrepeat:/
-	let s:errorMsg = substitute(v:exception, '^\Cvisualrepeat:\s*', '', '')
     catch
 	let s:errorMsg = v:exception
     endtry
 
     return 0
+endfunction
+function! visualrepeat#TempRepeat( count, lines )
+    call setline(1, a:lines[0])
+    call append(1, a:lines[1:])
+
+    " The cursor is set to the first column.
+    execute '%normal' (a:count ? a:count : '') . '.'
 endfunction
 
 let s:errorMsg = ''
