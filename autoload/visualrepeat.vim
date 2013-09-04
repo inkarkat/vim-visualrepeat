@@ -129,7 +129,7 @@ function! visualrepeat#repeat()
 
 	    call feedkeys('gv' . l:reg . l:cnt, 'n')
 	    call feedkeys(l:repeat_sequence)
-	    return
+	    return 1
 	endif
     endif
 
@@ -170,6 +170,7 @@ function! visualrepeat#repeat()
     return 0
 endfunction
 
+let s:errorMsg = ''
 function! visualrepeat#ErrorMsg()
     return s:errorMsg
 endfunction
