@@ -149,15 +149,20 @@ function! visualrepeat#repeat()
 	    " For all selected lines, repeat the last change in the line.
 	    if s:virtcol == 1
 		" The cursor is set to the first column.
-		execute "'<,'>normal" (v:count ? v:count : '') . '.'
+		let l:repeatCmd = 'normal ' . (v:count ? v:count : '') . '.'
 	    else
 		" The cursor is set to the cursor column; the last change is
 		" only applied to lines that have at least that many characters.
-		execute printf("'<,'>call visualrepeat#repeatOnVirtCol(%d, %s)",
+		let l:repeatCmd = printf('call visualrepeat#repeatOnVirtCol(%d, %s)',
 		\   s:virtcol,
 		\   string(v:count ? v:count : '')
 		\)
 	    endif
+
+	    " The use of :global keeps track of lines added or deleted by the
+	    " repeat, so that we apply exactly to the selected lines.
+	    execute "'<,'>global/^/" . l:repeatCmd
+	    call histdel('search', -1)
 	else
 	    " Yank the selected block and repeat the last change in scratch
 	    " lines at the end of the buffer (using a different buffer would be
