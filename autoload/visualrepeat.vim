@@ -1,6 +1,7 @@
 " visualrepeat.vim: Repeat command extended to visual mode.
 "
 " DEPENDENCIES:
+"   - ingo/selection.vim autoload script (optional; for blockwise repeat only)
 "
 " Copyright: (C) 2011-2013 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
@@ -8,6 +9,10 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.20.013	05-Sep-2013	ENH: Implement blockwise repeat through
+"				temporarily moving the block to a temporary
+"				range at the end of the buffer, like the vis.vim
+"				plugin.
 "   1.10.012	04-Sep-2013	ENH: Use the current cursor virtual column when
 "				repeating in linewise visual mode. Add
 "				visualrepeat#CaptureVirtCol() and
@@ -177,7 +182,15 @@ function! visualrepeat#repeat()
 	    " The cursor is set to the first column.
 	    execute l:tempRange . 'normal' (l:count ? l:count : '') . '.'
 	    let l:result = getline(l:finalLnum + 1, '$')
-	    silent! execute l:tempRange . 'delete _'
+	    try
+		" Using :undo to roll back the append and repeat is safer,
+		" because any potential modification outside the temporary range
+		" is also eliminated. Only explicitly delete the temporary range
+		" as a fallback.
+		undo
+	    catch /^Vim\%((\a\+)\)\=:E/
+		silent! execute l:tempRange . 'delete _'
+	    endtry
 
 	    for l:lnum in range(l:startLnum, l:endLnum)
 		let l:idx = l:lnum - l:startLnum
@@ -191,6 +204,8 @@ function! visualrepeat#repeat()
 	    call winrestview(l:save_view)
 	endif
 	return 1
+    catch /^Vim\%((\a\+)\)\=:E117:.*ingo#selection#Get/ " E117: Unknown function: ingo#selection#Get
+	let s:errorMsg = 'For blockwise repeat, you need to install the ingo-library dependency'
     catch /^Vim\%((\a\+)\)\=:/
 	" v:exception contains what is normally in v:errmsg, but with extra
 	" exception source info prepended, which we cut away.
@@ -200,13 +215,6 @@ function! visualrepeat#repeat()
     endtry
 
     return 0
-endfunction
-function! visualrepeat#TempRepeat( count, lines )
-    call setline(1, a:lines[0])
-    call append(1, a:lines[1:])
-
-    " The cursor is set to the first column.
-    execute '%normal' (a:count ? a:count : '') . '.'
 endfunction
 
 let s:errorMsg = ''
