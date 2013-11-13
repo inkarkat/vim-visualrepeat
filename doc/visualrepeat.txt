@@ -67,7 +67,10 @@ USAGE							  *visualrepeat-usage*
 			- characterwise: Start from cursor position.
 			- linewise: Each line separately, starting from the
 			  current column (usually the first in this mode).
-			- blockwise: Not supported.
+			- blockwise: Only the selected text. This is
+			  implemented by temporarily duplicating the selection
+			  to separate lines and repeating over those, starting
+			  from the first column.
 
 			Note: If the last normal mode command included a
 			{motion} (e.g. g~e), the repetition will also move
@@ -90,6 +93,8 @@ DEPENDENCIES					   *visualrepeat-dependencies*
 
 - Requires Vim 7.0 or higher.
 - repeat.vim (vimscript #2136) plugin (highly recommended)
+- |ingo-library.vim| plugin (vimscript #4433), version 1.013 or higher;
+  optional, for blockwise repeat only
 
 ==============================================================================
 INTEGRATION					    *visualrepeat-integration*
@@ -135,7 +140,13 @@ IDEAS							  *visualrepeat-ideas*
 ==============================================================================
 HISTORY							*visualrepeat-history*
 
-1.10	RELEASEME
+1.20	RELEASEME
+- ENH: Implement blockwise repeat through temporarily moving the block to a
+  temporary range at the end of the buffer, like the vis.vim plugin. This
+  feature requires the ingo-library. *** You need to separately install
+  ingo-library (vimscript #4433) version 1.013 (or higher)! ***
+
+1.10	05-Sep-2013
 - Check for existence of actual visual mode mapping; do not accept a select
   mode mapping, because we're applying it to a visual selection.
 - Pass through a [count] to the :normal . command.
