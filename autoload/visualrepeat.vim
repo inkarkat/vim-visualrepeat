@@ -95,6 +95,12 @@ function! visualrepeat#repeatOnVirtCol( virtcol, count )
 	execute 'normal' a:count . '.'
     endif
 endfunction
+function! s:RepeatOnRange( range, command )
+    " The use of :global keeps track of lines added or deleted by the repeat, so
+    " that we apply exactly to the selected lines.
+    execute a:range . "global/^/" . a:command
+    call histdel('search', -1)
+endfunction
 function! visualrepeat#repeat()
     if g:visualrepeat_tick == b:changedtick
 	" visualrepeat.vim should handle the repeat.
@@ -149,20 +155,15 @@ function! visualrepeat#repeat()
 	    " For all selected lines, repeat the last change in the line.
 	    if s:virtcol == 1
 		" The cursor is set to the first column.
-		let l:repeatCmd = 'normal ' . (v:count ? v:count : '') . '.'
+		call s:RepeatOnRange("'<,'>", 'normal ' . (v:count ? v:count : '') . '.')
 	    else
 		" The cursor is set to the cursor column; the last change is
 		" only applied to lines that have at least that many characters.
-		let l:repeatCmd = printf('call visualrepeat#repeatOnVirtCol(%d, %s)',
+		call s:RepeatOnRange("'<,'>", printf('call visualrepeat#repeatOnVirtCol(%d, %s)',
 		\   s:virtcol,
 		\   string(v:count ? v:count : '')
-		\)
+		\))
 	    endif
-
-	    " The use of :global keeps track of lines added or deleted by the
-	    " repeat, so that we apply exactly to the selected lines.
-	    execute "'<,'>global/^/" . l:repeatCmd
-	    call histdel('search', -1)
 	else
 	    " Yank the selected block and repeat the last change in scratch
 	    " lines at the end of the buffer (using a different buffer would be
@@ -173,7 +174,8 @@ function! visualrepeat#repeat()
 	    " buffer) via regular paste commands (which clobber the repeat
 	    " command). We need to be careful to avoid doing that, using only
 	    " lower level functions.
-	    let [l:count, l:startColPattern, l:startLnum, l:endLnum, l:finalLnum] = [v:count, ('\%>' . (virtcol("'<") - 1) . 'v'), line("'<"), line("'>"), line('$')]
+	    let l:startVirtCol = virtcol("'<")
+	    let [l:count, l:startColPattern, l:startLnum, l:endLnum, l:finalLnum] = [v:count, ('\%>' . (l:startVirtCol - 1) . 'v'), line("'<"), line("'>"), line('$')]
 	    let l:selection = split(ingo#selection#Get(), '\n', 1)
 
 	    " Save the view after the yank so that the cursor resides at the
@@ -185,14 +187,14 @@ function! visualrepeat#repeat()
 	    let l:tempRange = (l:finalLnum + 1) . ',$'
 	    call append(l:finalLnum, l:selection)
 	    " The cursor is set to the first column.
-	    execute l:tempRange . 'normal' (l:count ? l:count : '') . '.'
+	    call s:RepeatOnRange(l:tempRange, 'normal ' . (l:count ? l:count : '') . '.')
 	    let l:result = getline(l:finalLnum + 1, '$')
 	    try
 		" Using :undo to roll back the append and repeat is safer,
 		" because any potential modification outside the temporary range
 		" is also eliminated. Only explicitly delete the temporary range
 		" as a fallback.
-		undo
+		silent undo
 	    catch /^Vim\%((\a\+)\)\=:E/
 		silent! execute l:tempRange . 'delete _'
 	    endtry
@@ -202,9 +204,17 @@ function! visualrepeat#repeat()
 		let l:line = getline(l:lnum)
 		let l:startCol = match(l:line, l:startColPattern)
 		let l:endCol = l:startCol + len(l:selection[l:idx])
-		let l:newLine = strpart(l:line, 0, l:startCol) . get(l:result, l:idx, '') . strpart(l:line, l:endCol)
+		let l:newLine = strpart(l:line, 0, l:startCol) . get(l:result, l:idx, '') . strpart(l:line, l:endCol)   " Replace the line part with an empty string if there are less lines after the repeat.
 		call setline(l:lnum, l:newLine)
 	    endfor
+	    if len(l:result) - 1 > l:idx
+		" The repeat has introduced additional lines; append those (as
+		" new lines) properly indented to the start of the blockwise
+		" selection.
+		let l:indent = repeat(' ', l:startVirtCol - 1)
+		let l:indentedLines = map(l:result[(l:idx + 1):], 'l:indent . v:val')
+		call append(l:lnum, l:indentedLines)
+	    endif
 
 	    call winrestview(l:save_view)
 	endif
