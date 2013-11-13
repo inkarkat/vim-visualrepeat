@@ -207,13 +207,24 @@ function! visualrepeat#repeat()
 		let l:newLine = strpart(l:line, 0, l:startCol) . get(l:result, l:idx, '') . strpart(l:line, l:endCol)   " Replace the line part with an empty string if there are less lines after the repeat.
 		call setline(l:lnum, l:newLine)
 	    endfor
-	    if len(l:result) - 1 > l:idx
+	    let l:addedNum = len(l:result) - l:idx - 1
+	    if l:addedNum > 0
 		" The repeat has introduced additional lines; append those (as
 		" new lines) properly indented to the start of the blockwise
 		" selection.
 		let l:indent = repeat(' ', l:startVirtCol - 1)
-		let l:indentedLines = map(l:result[(l:idx + 1):], 'l:indent . v:val')
-		call append(l:lnum, l:indentedLines)
+
+		" To use the buffer's indent settings, first insert spaces and
+		" have :retab convert those to the proper indent. Then, append
+		" the additional lines.
+		call append(l:lnum, repeat([l:indent], l:addedNum))
+
+		silent execute printf('%d,%dretab!', l:lnum + 1, l:lnum + l:addedNum + 1)
+
+		for l:addedIdx in range(l:addedNum)
+		    let l:addedLnum = l:lnum + 1 + l:addedIdx
+		    call setline(l:addedLnum, getline(l:addedLnum) . l:result[l:idx + 1 + l:addedIdx])
+		endfor
 	    endif
 
 	    call winrestview(l:save_view)
