@@ -140,7 +140,17 @@ IDEAS							  *visualrepeat-ideas*
 ==============================================================================
 HISTORY							*visualrepeat-history*
 
-1.20	RELEASEME
+1.30	RELEASEME
+- ENH: When repeating over multiple lines / a blockwise selection, keep track
+  of added or deleted lines, and only repeat exactly on the selected lines.
+  Thanks to Israel Chauca for sending a patch!
+- When a repeat on a blockwise selection has introduced additional lines,
+  append those properly indented instead of omitting them.
+- With linewise and blockwise repeat, set the change marks '[,'] to the
+  changed selection. With the latter, one previously got "E19: Mark has
+  invalid line number" due to the removed temporary range.
+
+1.20	14-Nov-2013
 - ENH: Implement blockwise repeat through temporarily moving the block to a
   temporary range at the end of the buffer, like the vis.vim plugin. This
   feature requires the ingo-library. *** You need to separately install
