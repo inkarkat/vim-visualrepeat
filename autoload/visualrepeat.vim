@@ -9,6 +9,19 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.30.014	14-Nov-2013	ENH: When repeating over multiple lines / a
+"				blockwise selection, keep track of added or
+"				deleted lines, and only repeat exactly on the
+"				selected lines. Thanks to Israel Chauca for
+"				sending a patch!
+"				When a repeat on a blockwise selection has
+"				introduced additional lines, append those
+"				properly indented instead of omitting them.
+"				With linewise and blockwise repeat, set the
+"				change marks '[,'] to the changed selection.
+"				With the latter, one previously got "E19:
+"				Mark has invalid line number" due to the removed
+"				temporary range.
 "   1.20.013	05-Sep-2013	ENH: Implement blockwise repeat through
 "				temporarily moving the block to a temporary
 "				range at the end of the buffer, like the vis.vim
@@ -152,6 +165,8 @@ function! visualrepeat#repeat()
 	    " Repeat the last change starting from the current cursor position.
 	    execute 'normal' (v:count ? v:count : '') . '.'
 	elseif visualmode() ==# 'V'
+	    let [l:changeStart, l:changeEnd] = [getpos("'<"), getpos("'>")]
+
 	    " For all selected lines, repeat the last change in the line.
 	    if s:virtcol == 1
 		" The cursor is set to the first column.
@@ -164,6 +179,9 @@ function! visualrepeat#repeat()
 		\   string(v:count ? v:count : '')
 		\))
 	    endif
+
+	    call setpos("'[", l:changeStart)
+	    call setpos("']", l:changeEnd)
 	else
 	    " Yank the selected block and repeat the last change in scratch
 	    " lines at the end of the buffer (using a different buffer would be
@@ -174,6 +192,7 @@ function! visualrepeat#repeat()
 	    " buffer) via regular paste commands (which clobber the repeat
 	    " command). We need to be careful to avoid doing that, using only
 	    " lower level functions.
+	    let l:changeStart = getpos("'<")
 	    let l:startVirtCol = virtcol("'<")
 	    let [l:count, l:startColPattern, l:startLnum, l:endLnum, l:finalLnum] = [v:count, ('\%>' . (l:startVirtCol - 1) . 'v'), line("'<"), line("'>"), line('$')]
 	    let l:selection = split(ingo#selection#Get(), '\n', 1)
@@ -204,11 +223,15 @@ function! visualrepeat#repeat()
 		let l:line = getline(l:lnum)
 		let l:startCol = match(l:line, l:startColPattern)
 		let l:endCol = l:startCol + len(l:selection[l:idx])
-		let l:newLine = strpart(l:line, 0, l:startCol) . get(l:result, l:idx, '') . strpart(l:line, l:endCol)   " Replace the line part with an empty string if there are less lines after the repeat.
+		let l:resultLine = get(l:result, l:idx, '') " Replace the line part with an empty string if there are less lines after the repeat.
+		let l:newLine = strpart(l:line, 0, l:startCol) . l:resultLine . strpart(l:line, l:endCol)
 		call setline(l:lnum, l:newLine)
 	    endfor
+
 	    let l:addedNum = len(l:result) - l:idx - 1
-	    if l:addedNum > 0
+	    if l:addedNum == 0
+		let l:changeEnd = [0, l:lnum, l:startCol + len(l:resultLine), 0]
+	    else
 		" The repeat has introduced additional lines; append those (as
 		" new lines) properly indented to the start of the blockwise
 		" selection.
@@ -225,7 +248,14 @@ function! visualrepeat#repeat()
 		    let l:addedLnum = l:lnum + 1 + l:addedIdx
 		    call setline(l:addedLnum, getline(l:addedLnum) . l:result[l:idx + 1 + l:addedIdx])
 		endfor
+
+		let l:changeEnd = [0, l:addedLnum, len(getline(l:addedLnum)) + 1, 0]
 	    endif
+
+	    " The change marks still point to the (removed) temporary range.
+	    " Make them valid by setting them to the changed selection.
+	    call setpos("'[", l:changeStart)
+	    call setpos("']", l:changeEnd)
 
 	    call winrestview(l:save_view)
 	endif
