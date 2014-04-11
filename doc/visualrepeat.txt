@@ -140,7 +140,7 @@ IDEAS							  *visualrepeat-ideas*
 ==============================================================================
 HISTORY							*visualrepeat-history*
 
-1.30	RELEASEME
+1.30	15-Nov-2013
 - ENH: When repeating over multiple lines / a blockwise selection, keep track
   of added or deleted lines, and only repeat exactly on the selected lines.
   Thanks to Israel Chauca for sending a patch!
