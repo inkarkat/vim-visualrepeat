@@ -1,3 +1,4 @@
 autoload/visualrepeat.vim
+autoload/visualrepeat/reapply.vim
 plugin/visualrepeat.vim
 doc/visualrepeat.txt
