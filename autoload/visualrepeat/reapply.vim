@@ -2,7 +2,7 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2013 Ingo Karkat
+" Copyright: (C) 2013-2016 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -24,10 +24,9 @@ function! visualrepeat#reapply#VisualMode( isStayInVisualMode )
 	" A normal-mode repeat of the visual mapping is triggered by repeat.vim.
 	" It establishes a new selection at the cursor position, of the same
 	" mode and size as the last selection.
-	"   If [count] is given, the size is multiplied accordingly. This has
-	"   the side effect that a repeat with [count] will persist the expanded
-	"   size, which is different from what the normal-mode repeat does (it
-	"   keeps the scope of the original command).
+	" If [count] is given, the size is multiplied accordingly. This has the
+	" side effect that a repeat with [count] will persist the expanded size,
+	" just as it should.
 	return l:count . 'v' . (&selection ==# 'exclusive' ? ' ' : '') . l:appendix
 	" For ':set selection=exclusive', the final character must be
 	" re-included with <Space>, but only if this is not linewise visual
