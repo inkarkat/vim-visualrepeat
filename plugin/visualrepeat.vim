@@ -3,12 +3,22 @@
 " DEPENDENCIES:
 "   - visualrepeat.vim autoload script
 "
-" Copyright: (C) 2011-2013 Ingo Karkat
+" Copyright: (C) 2011-2017 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.31.004	13-Apr-2017	ENH: Add g. mapping that forces built-in repeat;
+"				i.e. skips any custom repeat.vim or
+"				visualrepeat.vim actions. This can be useful
+"				if a plugin offers a special repeat for visual
+"				mode, but a built-in repeat on each selected
+"				line may make sense, too. For example, my
+"				KeepText.vim plugin would keep the entire
+"				linewise selection; forcing a built-in repeat
+"				(of the custom operator) would reapply e.g. a
+"				<Leader>ka" to all selected lines instead.
 "   1.10.003	04-Sep-2013	ENH: Use the current cursor virtual column when
 "				repeating in linewise visual mode. This allows
 "				repeats of e.g. "t." that make more sense from
@@ -45,6 +55,18 @@ xnoremap <script> <silent> . <SID>(CaptureVirtCol):<C-u>
 \endif<CR>
 " In visual mode, the mode message will override the error message. Therefore,
 " sleep() for a short while to allow the user to notice it.
+
+vnoremap <script> <silent> <Plug>(visualrepeatForceBuiltInRepeat) <SID>(CaptureVirtCol):<C-u>
+\if ! visualrepeat#repeat(1)<Bar>
+\   echoerr visualrepeat#ErrorMsg()<Bar>
+\   if &cmdheight == 1<Bar>
+\       sleep 500m<Bar>
+\   endif<Bar>
+\   execute 'normal! gv'<Bar>
+\endif<CR>
+if ! hasmapto('<Plug>(visualrepeatForceBuiltInRepeat)', 'x')
+    xmap g. <Plug>(visualrepeatForceBuiltInRepeat)
+endif
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
