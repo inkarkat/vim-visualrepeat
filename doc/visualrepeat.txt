@@ -140,6 +140,11 @@ IDEAS							  *visualrepeat-ideas*
 ==============================================================================
 HISTORY							*visualrepeat-history*
 
+1.31	RELEASEME
+- Factor out ingo#buffer#temprange#Call() into ingo-library. *** You need to
+  update the optional dependency to ingo-library (vimscript #4433) version
+  1.018! ***
+
 1.30	15-Nov-2013
 - ENH: When repeating over multiple lines / a blockwise selection, keep track
   of added or deleted lines, and only repeat exactly on the selected lines.
@@ -191,7 +196,7 @@ Split off into dedicated plugin.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2008-2013 Ingo Karkat
+Copyright: (C) 2008-2014 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
