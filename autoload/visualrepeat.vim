@@ -2,13 +2,16 @@
 "
 " DEPENDENCIES:
 "   - ingo/selection.vim autoload script (optional; for blockwise repeat only)
+"   - ingo/buffer/temprange.vim autoload script (optional; for blockwise repeat only)
 "
-" Copyright: (C) 2011-2013 Ingo Karkat
+" Copyright: (C) 2011-2014 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.31.015	12-Apr-2014	Factor out ingo#buffer#temprange#Call() into
+"				ingo-library.
 "   1.30.014	14-Nov-2013	ENH: When repeating over multiple lines / a
 "				blockwise selection, keep track of added or
 "				deleted lines, and only repeat exactly on the
@@ -108,7 +111,7 @@ function! visualrepeat#repeatOnVirtCol( virtcol, count )
 	execute 'normal' a:count . '.'
     endif
 endfunction
-function! s:RepeatOnRange( range, command )
+function! visualrepeat#RepeatOnRange( range, command )
     " The use of :global keeps track of lines added or deleted by the repeat, so
     " that we apply exactly to the selected lines.
     execute a:range . "global/^/" . a:command
@@ -170,11 +173,11 @@ function! visualrepeat#repeat()
 	    " For all selected lines, repeat the last change in the line.
 	    if s:virtcol == 1
 		" The cursor is set to the first column.
-		call s:RepeatOnRange("'<,'>", 'normal ' . (v:count ? v:count : '') . '.')
+		call visualrepeat#RepeatOnRange("'<,'>", 'normal ' . (v:count ? v:count : '') . '.')
 	    else
 		" The cursor is set to the cursor column; the last change is
 		" only applied to lines that have at least that many characters.
-		call s:RepeatOnRange("'<,'>", printf('call visualrepeat#repeatOnVirtCol(%d, %s)',
+		call visualrepeat#RepeatOnRange("'<,'>", printf('call visualrepeat#repeatOnVirtCol(%d, %s)',
 		\   s:virtcol,
 		\   string(v:count ? v:count : '')
 		\))
@@ -194,29 +197,10 @@ function! visualrepeat#repeat()
 	    " lower level functions.
 	    let l:changeStart = getpos("'<")
 	    let l:startVirtCol = virtcol("'<")
-	    let [l:count, l:startColPattern, l:startLnum, l:endLnum, l:finalLnum] = [v:count, ('\%>' . (l:startVirtCol - 1) . 'v'), line("'<"), line("'>"), line('$')]
+	    let [l:count, l:startColPattern, l:startLnum, l:endLnum] = [v:count, ('\%>' . (l:startVirtCol - 1) . 'v'), line("'<"), line("'>")]
 	    let l:selection = split(ingo#selection#Get(), '\n', 1)
 
-	    " Save the view after the yank so that the cursor resides at the
-	    " beginning of the selected block, just as we would expect after the
-	    " repeat. (The :normal / :delete of the temporary range later
-	    " modifies the cursor position.)
-	    let l:save_view = winsaveview()
-
-	    let l:tempRange = (l:finalLnum + 1) . ',$'
-	    call append(l:finalLnum, l:selection)
-	    " The cursor is set to the first column.
-	    call s:RepeatOnRange(l:tempRange, 'normal ' . (l:count ? l:count : '') . '.')
-	    let l:result = getline(l:finalLnum + 1, '$')
-	    try
-		" Using :undo to roll back the append and repeat is safer,
-		" because any potential modification outside the temporary range
-		" is also eliminated. Only explicitly delete the temporary range
-		" as a fallback.
-		silent undo
-	    catch /^Vim\%((\a\+)\)\=:E/
-		silent! execute l:tempRange . 'delete _'
-	    endtry
+	    let l:result = ingo#buffer#temprange#Call(l:selection, function('visualrepeat#RepeatOnRange'), ['.,$', 'normal ' . (l:count ? l:count : '') . '.'], 1)
 
 	    for l:lnum in range(l:startLnum, l:endLnum)
 		let l:idx = l:lnum - l:startLnum
@@ -256,8 +240,6 @@ function! visualrepeat#repeat()
 	    " Make them valid by setting them to the changed selection.
 	    call setpos("'[", l:changeStart)
 	    call setpos("']", l:changeEnd)
-
-	    call winrestview(l:save_view)
 	endif
 	return 1
     catch /^Vim\%((\a\+)\)\=:E117:.*ingo#selection#Get/ " E117: Unknown function: ingo#selection#Get
