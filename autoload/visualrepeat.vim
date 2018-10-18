@@ -4,12 +4,17 @@
 "   - ingo/selection.vim autoload script (optional; for blockwise repeat only)
 "   - ingo/buffer/temprange.vim autoload script (optional; for blockwise repeat only)
 "
-" Copyright: (C) 2011-2014 Ingo Karkat
+" Copyright: (C) 2011-2017 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.31.016	13-Apr-2017	Refactoring: Factor out l:normalCmd.
+"				ENH: Allow variant that forces the built-in
+"				repeat (i.e. skip repeat.vim and
+"				visualrepeat.vim) by passing optional flag to
+"				visualrepeat#repeat().
 "   1.31.015	12-Apr-2014	Factor out ingo#buffer#temprange#Call() into
 "				ingo-library.
 "   1.30.014	14-Nov-2013	ENH: When repeating over multiple lines / a
@@ -105,10 +110,10 @@ function! visualrepeat#CaptureVirtCol()
     let s:virtcol = virtcol('.')
     return ''
 endfunction
-function! visualrepeat#repeatOnVirtCol( virtcol, count )
+function! visualrepeat#repeatOnVirtCol( virtcol, count, normalCmd )
     execute 'normal!' a:virtcol . '|'
     if virtcol('.') >= a:virtcol
-	execute 'normal' a:count . '.'
+	execute a:normalCmd a:count . '.'
     endif
 endfunction
 function! visualrepeat#RepeatOnRange( range, command )
@@ -117,7 +122,13 @@ function! visualrepeat#RepeatOnRange( range, command )
     execute a:range . "global/^/" . a:command
     call histdel('search', -1)
 endfunction
-function! visualrepeat#repeat()
+function! visualrepeat#repeat( ... )
+    let l:isForceBuildInRepeat = (a:0 && a:1)
+
+    " Note: Unless forced, :normal has no bang to allow a remapped '.' command
+    " here to enable repeat.vim functionality.
+    let l:normalCmd = 'normal' . (l:isForceBuildInRepeat ? '!' : '')
+
     if g:visualrepeat_tick == b:changedtick
 	" visualrepeat.vim should handle the repeat.
 	let l:repeat_sequence = g:visualrepeat_sequence
@@ -128,7 +139,7 @@ function! visualrepeat#repeat()
 	let l:repeat_count = g:repeat_count
     endif
 
-    if exists('l:repeat_sequence')
+    if ! l:isForceBuildInRepeat && exists('l:repeat_sequence')
 	" A mapping for visualrepeat.vim or repeat.vim to repeat has been set.
 	" Ensure that a corresponding visual mode mapping exists; some plugins
 	" that only use repeat.vim may not have this.
@@ -161,25 +172,23 @@ function! visualrepeat#repeat()
     endif
 
     try
-	" Note: :normal has no bang to allow a remapped '.' command here to
-	" enable repeat.vim functionality.
-
 	if visualmode() ==# 'v'
 	    " Repeat the last change starting from the current cursor position.
-	    execute 'normal' (v:count ? v:count : '') . '.'
+	    execute l:normalCmd (v:count ? v:count : '') . '.'
 	elseif visualmode() ==# 'V'
 	    let [l:changeStart, l:changeEnd] = [getpos("'<"), getpos("'>")]
 
 	    " For all selected lines, repeat the last change in the line.
 	    if s:virtcol == 1
 		" The cursor is set to the first column.
-		call visualrepeat#RepeatOnRange("'<,'>", 'normal ' . (v:count ? v:count : '') . '.')
+		call visualrepeat#RepeatOnRange("'<,'>", l:normalCmd . ' ' . (v:count ? v:count : '') . '.')
 	    else
 		" The cursor is set to the cursor column; the last change is
 		" only applied to lines that have at least that many characters.
-		call visualrepeat#RepeatOnRange("'<,'>", printf('call visualrepeat#repeatOnVirtCol(%d, %s)',
+		call visualrepeat#RepeatOnRange("'<,'>", printf('call visualrepeat#repeatOnVirtCol(%d, %s, %s)',
 		\   s:virtcol,
-		\   string(v:count ? v:count : '')
+		\   string(v:count ? v:count : ''),
+		\   string(l:normalCmd)
 		\))
 	    endif
 
@@ -200,7 +209,7 @@ function! visualrepeat#repeat()
 	    let [l:count, l:startColPattern, l:startLnum, l:endLnum] = [v:count, ('\%>' . (l:startVirtCol - 1) . 'v'), line("'<"), line("'>")]
 	    let l:selection = split(ingo#selection#Get(), '\n', 1)
 
-	    let l:result = ingo#buffer#temprange#Call(l:selection, function('visualrepeat#RepeatOnRange'), ['.,$', 'normal ' . (l:count ? l:count : '') . '.'], 1)
+	    let l:result = ingo#buffer#temprange#Call(l:selection, function('visualrepeat#RepeatOnRange'), ['.,$', l:normalCmd . ' ' . (l:count ? l:count : '') . '.'], 1)
 
 	    for l:lnum in range(l:startLnum, l:endLnum)
 		let l:idx = l:lnum - l:startLnum
