@@ -77,6 +77,10 @@ USAGE							  *visualrepeat-usage*
 			exactly over this {motion}, NOT the visual selection!
 			It is thus best to repeat commands that work on the
 			entire line (e.g. g~$).
+									*v_g.*
+{Visual}g.		Repeat last built-in command in all visually selected
+			lines. Skips any plugin repeat actions; only repeats
+			the last Vim command.
 
 ==============================================================================
 INSTALLATION					   *visualrepeat-installation*
@@ -141,6 +145,12 @@ IDEAS							  *visualrepeat-ideas*
 HISTORY							*visualrepeat-history*
 
 1.31	RELEASEME
+- ENH: Add g. mapping that forces built-in repeat; i.e. skips any custom
+  repeat.vim or visualrepeat.vim actions. This can be useful if a plugin
+  offers a special repeat for visual mode, but a built-in repeat on each
+  selected line may make sense, too. For example, my KeepText.vim plugin would
+  keep the entire linewise selection; forcing a built-in repeat (of the custom
+  operator) would reapply e.g. a <Leader>ka" to all selected lines instead.
 - Factor out ingo#buffer#temprange#Call() into ingo-library. *** You need to
   update the optional dependency to ingo-library (vimscript #4433) version
   1.018! ***
@@ -196,7 +206,7 @@ Split off into dedicated plugin.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2008-2014 Ingo Karkat
+Copyright: (C) 2008-2017 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
