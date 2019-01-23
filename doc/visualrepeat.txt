@@ -154,6 +154,12 @@ HISTORY							*visualrepeat-history*
 - Factor out ingo#buffer#temprange#Call() into ingo-library. *** You need to
   update the optional dependency to ingo-library (vimscript #4433) version
   1.018! ***
+- ENH: Make an explicit register on repeat override g:repeat_reg. As with
+  built-in commands, this allows to override the original register on repeat,
+  e.g. "a. uses register a instead of the original one. One limitation is that
+  we cannot detect whether no or the default register has been given, so an
+  override from a non-default to the default register (e.g. via "".) is not
+  possible.
 
 1.30	15-Nov-2013
 - ENH: When repeating over multiple lines / a blockwise selection, keep track
@@ -206,7 +212,7 @@ Split off into dedicated plugin.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2008-2017 Ingo Karkat
+Copyright: (C) 2008-2019 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
