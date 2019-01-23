@@ -4,12 +4,15 @@
 "   - ingo/selection.vim autoload script (optional; for blockwise repeat only)
 "   - ingo/buffer/temprange.vim autoload script (optional; for blockwise repeat only)
 "
-" Copyright: (C) 2011-2017 Ingo Karkat
+" Copyright: (C) 2011-2018 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.31.017	19-Oct-2018	Regression: Need to use String concatenation
+"                               with l:normalCmd and following (...) expression
+"                               to avoid "E117: Unknown function: l:normalCmd".
 "   1.31.016	13-Apr-2017	Refactoring: Factor out l:normalCmd.
 "				ENH: Allow variant that forces the built-in
 "				repeat (i.e. skip repeat.vim and
@@ -174,7 +177,7 @@ function! visualrepeat#repeat( ... )
     try
 	if visualmode() ==# 'v'
 	    " Repeat the last change starting from the current cursor position.
-	    execute l:normalCmd (v:count ? v:count : '') . '.'
+	    execute l:normalCmd . ' ' . (v:count ? v:count : '') . '.'
 	elseif visualmode() ==# 'V'
 	    let [l:changeStart, l:changeEnd] = [getpos("'<"), getpos("'>")]
 
