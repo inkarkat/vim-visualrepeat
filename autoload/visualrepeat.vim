@@ -1,15 +1,18 @@
 " visualrepeat.vim: Repeat command extended to visual mode.
 "
 " DEPENDENCIES:
+"   - ingo/register.vim autoload script (optional; for register override only)
 "   - ingo/selection.vim autoload script (optional; for blockwise repeat only)
 "   - ingo/buffer/temprange.vim autoload script (optional; for blockwise repeat only)
 "
-" Copyright: (C) 2011-2018 Ingo Karkat
+" Copyright: (C) 2011-2019 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.31.018	24-Jan-2019	ENH: Make an explicit register on repeat
+"                               override g:repeat_reg.
 "   1.31.017	19-Oct-2018	Regression: Need to use String concatenation
 "                               with l:normalCmd and following (...) expression
 "                               to avoid "E117: Unknown function: l:normalCmd".
@@ -152,12 +155,18 @@ function! visualrepeat#repeat( ... )
 	    let l:reg = ''
 	    if exists('g:repeat_reg') && exists('g:repeat_sequence') &&
 	    \   g:repeat_reg[0] ==# g:repeat_sequence && ! empty(g:repeat_reg[1])
-		if g:repeat_reg[1] ==# '='
+		" Take the original register, unless another (non-default, we
+		" unfortunately cannot detect no vs. a given default register)
+		" register has been supplied to the repeat command (as an
+		" explicit override).
+		let l:regName = g:repeat_reg[1]
+		silent! let l:regName = (v:register ==# ingo#register#Default() ? g:repeat_reg[1] : v:register) " Register override needs the optional ingo-library dependency.
+		if l:regName ==# '='
 		    " This causes a re-evaluation of the expression on repeat, which
 		    " is what we want.
 		    let l:reg = '"=' . getreg('=', 1) . "\<CR>"
 		else
-		    let l:reg = '"' . g:repeat_reg[1]
+		    let l:reg = '"' . l:regName
 		endif
 	    endif
 
