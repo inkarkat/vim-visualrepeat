@@ -12,10 +12,10 @@
 "
 " REVISION	DATE		REMARKS
 "   1.31.018	24-Jan-2019	ENH: Make an explicit register on repeat
-"                               override g:repeat_reg.
+"				override g:repeat_reg.
 "   1.31.017	19-Oct-2018	Regression: Need to use String concatenation
-"                               with l:normalCmd and following (...) expression
-"                               to avoid "E117: Unknown function: l:normalCmd".
+"				with l:normalCmd and following (...) expression
+"				to avoid "E117: Unknown function: l:normalCmd".
 "   1.31.016	13-Apr-2017	Refactoring: Factor out l:normalCmd.
 "				ENH: Allow variant that forces the built-in
 "				repeat (i.e. skip repeat.vim and
