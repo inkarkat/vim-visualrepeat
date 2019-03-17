@@ -146,7 +146,7 @@ https://github.com/inkarkat/vim-visualrepeat/issues or email (address below).
 HISTORY
 ------------------------------------------------------------------------------
 
-##### 1.31    RELEASEME
+##### 1.31    17-Mar-2019
 - ENH: Add g. mapping that forces built-in repeat; i.e. skips any custom
   repeat.vim or visualrepeat.vim actions. This can be useful if a plugin
   offers a special repeat for visual mode, but a built-in repeat on each
