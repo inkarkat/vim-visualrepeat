@@ -3,34 +3,10 @@
 " DEPENDENCIES:
 "   - visualrepeat.vim autoload script
 "
-" Copyright: (C) 2011-2017 Ingo Karkat
+" Copyright: (C) 2011-2019 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-"
-" REVISION	DATE		REMARKS
-"   1.31.004	13-Apr-2017	ENH: Add g. mapping that forces built-in repeat;
-"				i.e. skips any custom repeat.vim or
-"				visualrepeat.vim actions. This can be useful
-"				if a plugin offers a special repeat for visual
-"				mode, but a built-in repeat on each selected
-"				line may make sense, too. For example, my
-"				KeepText.vim plugin would keep the entire
-"				linewise selection; forcing a built-in repeat
-"				(of the custom operator) would reapply e.g. a
-"				<Leader>ka" to all selected lines instead.
-"   1.10.003	04-Sep-2013	ENH: Use the current cursor virtual column when
-"				repeating in linewise visual mode. This allows
-"				repeats of e.g. "t." that make more sense from
-"				the current cursor position than from the start
-"				of the line, and it doesn't interfere with the
-"				normal linewise repeat, because in that mode,
-"				the cursor is on the first column by default.
-"				Abort further commands on error by using echoerr
-"				inside the mapping (using a copy of the
-"				implementation of ingo#err#Get()).
-"   1.00.002	13-Dec-2011	Prepared for publish.
-"	001	18-Mar-2011	file creation from ingomappings.vim.
 
 " Avoid installing twice or when in unsupported Vim version.
 if exists('g:loaded_visualrepeat') || (v:version < 700)
