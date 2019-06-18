@@ -87,8 +87,15 @@ function! visualrepeat#repeat( ... )
 	    " support blockwise visual mode.
 	    let l:cnt = l:repeat_count == -1 ? '' : (v:count ? v:count : (l:repeat_count ? l:repeat_count : ''))
 
-	    call feedkeys('gv' . l:reg . l:cnt, 'n')
-	    call feedkeys(l:repeat_sequence)
+	    if ((v:version == 703 && has('patch100')) || (v:version == 704 && !has('patch601')))
+                exe 'normal gv' . l:reg . l:cnt . l:repeat_sequence
+	    elseif v:version <= 703
+		call feedkeys('gv' . l:reg . l:cnt, 'n')
+		call feedkeys(l:repeat_sequence, '')
+	    else
+		call feedkeys(l:repeat_sequence, 'i')
+		call feedkeys('gv' . l:reg . l:cnt, 'ni')
+	    endif
 	    return 1
 	endif
     endif

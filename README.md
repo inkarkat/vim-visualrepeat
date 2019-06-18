@@ -149,6 +149,8 @@ HISTORY
 ##### 1.32    RELEASEME
 - BUG: visualrepeat#reapply#VisualMode() mistakenly adds the next full line
   when restoring a linewise visual selection (to a smaller target).
+- Use :normal for Vim 7.3.100..7.4.601 and feedkeys(..., 'i') for newer
+  versions, aligning the used mechanism with what repeat.vim uses.
 
 ##### 1.31    17-Mar-2019
 - ENH: Add g. mapping that forces built-in repeat; i.e. skips any custom
