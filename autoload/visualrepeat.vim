@@ -1,11 +1,9 @@
 " visualrepeat.vim: Repeat command extended to visual mode.
 "
 " DEPENDENCIES:
-"   - ingo/register.vim autoload script (optional; for register override only)
-"   - ingo/selection.vim autoload script (optional; for blockwise repeat only)
-"   - ingo/buffer/temprange.vim autoload script (optional; for blockwise repeat only)
+"   - ingo-library.vim plugin (optional; for register override only)
 "
-" Copyright: (C) 2011-2019 Ingo Karkat
+" Copyright: (C) 2011-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
