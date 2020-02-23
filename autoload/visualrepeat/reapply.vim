@@ -12,7 +12,8 @@ function! visualrepeat#reapply#VisualMode( isStayInVisualMode )
     let l:appendix = (a:isStayInVisualMode ? '' : "\<Esc>")
     let l:isOnlyRepeatCount = (g:repeat_count == v:count)
     let l:count = (l:isOnlyRepeatCount ? 1 : v:count1)
-    if ! l:isOnlyRepeatCount && visualmode() ==# 'V'
+    let l:isLinewise = (visualmode() ==# 'V')
+    if ! l:isOnlyRepeatCount && l:isLinewise
 	" Select [count] lines, not [count] times the previously selected lines.
 	" It would be more correct to do this for the other selection modes,
 	" too, but it's difficult to multiply their size.
@@ -24,7 +25,7 @@ function! visualrepeat#reapply#VisualMode( isStayInVisualMode )
 	" If [count] is given, the size is multiplied accordingly. This has the
 	" side effect that a repeat with [count] will persist the expanded size,
 	" just as it should.
-	return l:count . 'v' . (&selection ==# 'exclusive' ? ' ' : '') . l:appendix
+	return l:count . 'v' . (&selection ==# 'exclusive' && ! l:isLinewise ? ' ' : '') . l:appendix
 	" For ':set selection=exclusive', the final character must be
 	" re-included with <Space>, but only if this is not linewise visual
 	" mode; in that case, the <Space> would add the next line in case the

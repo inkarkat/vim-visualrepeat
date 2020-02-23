@@ -16,7 +16,7 @@ This extends the built-in normal mode repeat . to visual mode.
 ### VISUAL MODE MAPPING REPETITION
 
 Like with repeat.vim for normal mode, visual mode mappings can register a
-<Plug> mapping to be used for visual mode repetition.
+&lt;Plug&gt; mapping to be used for visual mode repetition.
 
 Likewise, normal mode mappings can (in addition to the repeat.vim registration
 of a normal mode mapping) register a visual mode mapping with visualrepeat.vim
@@ -146,13 +146,19 @@ https://github.com/inkarkat/vim-visualrepeat/issues or email (address below).
 HISTORY
 ------------------------------------------------------------------------------
 
+##### 1.32    23-Feb-2020
+- BUG: visualrepeat#reapply#VisualMode() mistakenly adds the next full line
+  when restoring a linewise visual selection (to a smaller target).
+- Use :normal for Vim 7.3.100..7.4.601 and feedkeys(..., 'i') for newer
+  versions, aligning the used mechanism with what repeat.vim uses.
+
 ##### 1.31    17-Mar-2019
 - ENH: Add g. mapping that forces built-in repeat; i.e. skips any custom
   repeat.vim or visualrepeat.vim actions. This can be useful if a plugin
   offers a special repeat for visual mode, but a built-in repeat on each
   selected line may make sense, too. For example, my KeepText.vim plugin would
   keep the entire linewise selection; forcing a built-in repeat (of the custom
-  operator) would reapply e.g. a <Leader>ka" to all selected lines instead.
+  operator) would reapply e.g. a &lt;Leader&gt;ka" to all selected lines instead.
 - Factor out ingo#buffer#temprange#Call() into ingo-library. !!! You need to
   update the optional dependency to ingo-library ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)) version
   1.018! !!!
@@ -216,7 +222,7 @@ repeat.vim isn't available.
 - Started development.
 
 ------------------------------------------------------------------------------
-Copyright: (C) 2008-2019 Ingo Karkat -
+Copyright: (C) 2008-2020 Ingo Karkat -
 The [VIM LICENSE](http://vimdoc.sourceforge.net/htmldoc/uganda.html#license) applies to this plugin.
 
-Maintainer:     Ingo Karkat <ingo@karkat.de>
+Maintainer:     Ingo Karkat &lt;ingo@karkat.de&gt;

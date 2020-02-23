@@ -1,11 +1,9 @@
 " visualrepeat.vim: Repeat command extended to visual mode.
 "
 " DEPENDENCIES:
-"   - ingo/register.vim autoload script (optional; for register override only)
-"   - ingo/selection.vim autoload script (optional; for blockwise repeat only)
-"   - ingo/buffer/temprange.vim autoload script (optional; for blockwise repeat only)
+"   - ingo-library.vim plugin (optional; for register override only)
 "
-" Copyright: (C) 2011-2019 Ingo Karkat
+" Copyright: (C) 2011-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -87,8 +85,15 @@ function! visualrepeat#repeat( ... )
 	    " support blockwise visual mode.
 	    let l:cnt = l:repeat_count == -1 ? '' : (v:count ? v:count : (l:repeat_count ? l:repeat_count : ''))
 
-	    call feedkeys('gv' . l:reg . l:cnt, 'n')
-	    call feedkeys(l:repeat_sequence)
+	    if ((v:version == 703 && has('patch100')) || (v:version == 704 && !has('patch601')))
+                exe 'normal gv' . l:reg . l:cnt . l:repeat_sequence
+	    elseif v:version <= 703
+		call feedkeys('gv' . l:reg . l:cnt, 'n')
+		call feedkeys(l:repeat_sequence, '')
+	    else
+		call feedkeys(l:repeat_sequence, 'i')
+		call feedkeys('gv' . l:reg . l:cnt, 'ni')
+	    endif
 	    return 1
 	endif
     endif
