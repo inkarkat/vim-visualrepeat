@@ -146,7 +146,7 @@ https://github.com/inkarkat/vim-visualrepeat/issues or email (address below).
 HISTORY
 ------------------------------------------------------------------------------
 
-##### 1.32    RELEASEME
+##### 1.32    23-Feb-2020
 - BUG: visualrepeat#reapply#VisualMode() mistakenly adds the next full line
   when restoring a linewise visual selection (to a smaller target).
 - Use :normal for Vim 7.3.100..7.4.601 and feedkeys(..., 'i') for newer
@@ -222,7 +222,7 @@ repeat.vim isn't available.
 - Started development.
 
 ------------------------------------------------------------------------------
-Copyright: (C) 2008-2019 Ingo Karkat -
+Copyright: (C) 2008-2020 Ingo Karkat -
 The [VIM LICENSE](http://vimdoc.sourceforge.net/htmldoc/uganda.html#license) applies to this plugin.
 
 Maintainer:     Ingo Karkat &lt;ingo@karkat.de&gt;
