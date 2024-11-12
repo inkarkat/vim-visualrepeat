@@ -147,6 +147,8 @@ HISTORY
 ------------------------------------------------------------------------------
 
 ##### 1.33    RELEASEME
+- Adapt: Compatibility: Adding one character to previous exclusive selection
+  not needed since Vim 9.0.1172 in visualrepeat#reapply#VisualMode().
 
 ##### 1.32    23-Feb-2020
 - BUG: visualrepeat#reapply#VisualMode() mistakenly adds the next full line
@@ -224,7 +226,7 @@ repeat.vim isn't available.
 - Started development.
 
 ------------------------------------------------------------------------------
-Copyright: (C) 2008-2020 Ingo Karkat -
+Copyright: (C) 2008-2024 Ingo Karkat -
 The [VIM LICENSE](http://vimdoc.sourceforge.net/htmldoc/uganda.html#license) applies to this plugin.
 
 Maintainer:     Ingo Karkat &lt;ingo@karkat.de&gt;
