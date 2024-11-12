@@ -146,7 +146,7 @@ https://github.com/inkarkat/vim-visualrepeat/issues or email (address below).
 HISTORY
 ------------------------------------------------------------------------------
 
-##### 1.33    RELEASEME
+##### 1.33    12-Nov-2024
 - Adapt: Compatibility: Adding one character to previous exclusive selection
   not needed since Vim 9.0.1172 in visualrepeat#reapply#VisualMode().
 
