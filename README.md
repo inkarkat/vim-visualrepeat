@@ -95,7 +95,7 @@ To uninstall, use the :RmVimball command.
 
 - Requires Vim 7.0 or higher.
 - repeat.vim ([vimscript #2136](http://www.vim.org/scripts/script.php?script_id=2136)) plugin (highly recommended)
-- ingo-library.vim plugin ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)), version 1.013 or higher;
+- ingo-library.vim plugin ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)), version 1.048 or higher;
   optional, for blockwise repeat only
 
 INTEGRATION
@@ -145,6 +145,12 @@ https://github.com/inkarkat/vim-visualrepeat/issues or email (address below).
 
 HISTORY
 ------------------------------------------------------------------------------
+
+##### 1.34    RELEASEME
+-
+
+__You need to update the optional dependency to ingo-library
+  ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)) version 1.048!__
 
 ##### 1.33    12-Nov-2024
 - Adapt: Compatibility: Adding one character to previous exclusive selection
@@ -226,7 +232,7 @@ repeat.vim isn't available.
 - Started development.
 
 ------------------------------------------------------------------------------
-Copyright: (C) 2008-2024 Ingo Karkat -
+Copyright: (C) 2008-2026 Ingo Karkat -
 The [VIM LICENSE](http://vimdoc.sourceforge.net/htmldoc/uganda.html#license) applies to this plugin.
 
 Maintainer:     Ingo Karkat &lt;ingo@karkat.de&gt;

@@ -2,7 +2,7 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2013-2024 Ingo Karkat
+" Copyright: (C) 2013-2026 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -25,11 +25,7 @@ function! visualrepeat#reapply#VisualMode( isStayInVisualMode )
 	" If [count] is given, the size is multiplied accordingly. This has the
 	" side effect that a repeat with [count] will persist the expanded size,
 	" just as it should.
-	return l:count . 'v' . (&selection ==# 'exclusive' && ! l:isLinewise && (v:version < 900 || v:version == 900 && ! has('patch1172')) ? ' ' : '') . l:appendix
-	" For ':set selection=exclusive', the final character must be
-	" re-included with <Space>, but only if this is not linewise visual
-	" mode; in that case, the <Space> would add the next line in case the
-	" last selected line is empty.
+	return ingo#selection#VisualReselect({'expr': 1, 'count': l:count, 'suffix': l:appendix})
     endif
 endfunction
 function! visualrepeat#reapply#RepeatCount()
